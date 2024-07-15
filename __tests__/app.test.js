@@ -28,7 +28,6 @@ describe("/api/topics", () => {
       .expect(200)
       .then((response) => {
         expect(response.body.topics.length).toBe(3);
-        expect(Array.isArray(response.body.topics)).toBe(true);
         response.body.topics.forEach((topic) => {
           expect(Array.isArray(topic)).toBe(false);
           expect(topic).toMatchObject({
