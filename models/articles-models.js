@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { checkArticleExist } = require("../db/seeds/utils");
 
 function selectArticles() {
   //   return db.query("SELECT * FROM articles ORDER BY created_at;");
@@ -42,4 +43,42 @@ function selectComments(article_id) {
     });
 }
 
-module.exports = { selectArticles, selectArticleById, selectComments };
+// function insertComment(newComment, article_id) {
+//   const queryString = `
+//     INSERT INTO comments (author,body,article_id)
+//     VALUES ($1, $2, $3) RETURNING *;`;
+//   return db
+//     .query(queryString, [newComment.username, newComment.body, article_id])
+//     .then(({ rows }) => {
+//       console.log(rows, "rows in models");
+
+//       return rows[0];
+//     });
+// }
+
+function insertComment(newComment, article_id) {
+  const queryString = `INSERT INTO comments (author,body,article_id)VALUES ($1, $2, $3) RETURNING *;`;
+  const queryValues = [newComment.username, newComment.body];
+  const promiseArray = [];
+  if (article_id) {
+    queryValues.push(article_id);
+    promiseArray.push(checkArticleExist(article_id));
+  }
+  promiseArray.push(db.query(queryString, queryValues));
+  return Promise.all(promiseArray).then((results) => {
+    const articleResults = results[0];
+    const queryResults = results[1];
+
+    if (queryResults.rows.length === 0 && articleResults === false) {
+      return Promise.reject({ status: 404, msg: "article does not exist" });
+    }
+    return queryResults.rows[0];
+  });
+}
+
+module.exports = {
+  selectArticles,
+  selectArticleById,
+  selectComments,
+  insertComment,
+};
