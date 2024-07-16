@@ -43,19 +43,6 @@ function selectComments(article_id) {
     });
 }
 
-// function insertComment(newComment, article_id) {
-//   const queryString = `
-//     INSERT INTO comments (author,body,article_id)
-//     VALUES ($1, $2, $3) RETURNING *;`;
-//   return db
-//     .query(queryString, [newComment.username, newComment.body, article_id])
-//     .then(({ rows }) => {
-//       console.log(rows, "rows in models");
-
-//       return rows[0];
-//     });
-// }
-
 function insertComment(newComment, article_id) {
   const queryString = `INSERT INTO comments (author,body,article_id)VALUES ($1, $2, $3) RETURNING *;`;
   const queryValues = [newComment.username, newComment.body];
