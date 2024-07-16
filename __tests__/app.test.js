@@ -139,4 +139,44 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+  test("POST:201 add a new comment with corresponded article_id to the db and sends the posted comment back to the client", () => {
+    const newComment = {
+      username: "rogersop",
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.postedComment.comment_id).toBe(19);
+        expect(body.postedComment.author).toBe("rogersop");
+        expect(body.postedComment.body).toBe("It is so interesting !");
+      });
+  });
+  test("POST:400 responds with an appropriate status and error message when provided with a bad comment (no username)", () => {
+    const newComment = {
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("POST:404 respons with an appropriate status and error message when given a invalid id", () => {
+    const newComment = {
+      username: "rogersop",
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article does not exist");
+      });
+  });
 });
