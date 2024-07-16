@@ -41,5 +41,18 @@
         "article_img_url": "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?w=700&h=700"
       }
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a new comment, serves the new comment",
+    "queries": [],
+    "exampleResponse": {
+      "postedComment": {
+        "body": "The owls are not what they seem.",
+        "votes": 20,
+        "author": "icellusedkars",
+        "article_id": 9,
+        "created_at": 1584205320000
+      }
+    }
   }
 }
