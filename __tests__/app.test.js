@@ -175,7 +175,19 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  test("POST:404 respons with an appropriate status and error message when given a invalid id", () => {
+  test("POST:400 respons with an appropriate status and error message when given a invalid id", () => {
+    const newComment = {
+      username: "rogersop",
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/not-a-number/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("POST:404 respons with an appropriate status and error message when given a valid id but doesn not exsit", () => {
     const newComment = {
       username: "rogersop",
       body: "It is so interesting !",
@@ -186,6 +198,19 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article does not exist");
+      });
+  });
+  test("POST:404 respons with an appropriate status and error message when given non-exsisting username", () => {
+    const newComment = {
+      username: "eunwoo",
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("user does not exist");
       });
   });
 });

@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { checkArticleExist } = require("../db/seeds/utils");
+const { checkArticleExist, checkUserExist } = require("../db/seeds/utils");
 
 function selectArticles() {
   //   return db.query("SELECT * FROM articles ORDER BY created_at;");
@@ -51,10 +51,13 @@ function insertComment(newComment, article_id) {
     queryValues.push(article_id);
     promiseArray.push(checkArticleExist(article_id));
   }
+  if (newComment.username) {
+    promiseArray.push(checkUserExist(newComment.username));
+  }
   promiseArray.push(db.query(queryString, queryValues));
   return Promise.all(promiseArray).then((results) => {
     const articleResults = results[0];
-    const queryResults = results[1];
+    const queryResults = results[2];
 
     if (queryResults.rows.length === 0 && articleResults === false) {
       return Promise.reject({ status: 404, msg: "article does not exist" });
