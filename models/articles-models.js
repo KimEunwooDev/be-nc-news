@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { checkArticleExist } = require("../db/seeds/utils");
+const { checkArticleExist, checkUserExist } = require("../db/seeds/utils");
 
 function selectArticles() {
   //   return db.query("SELECT * FROM articles ORDER BY created_at;");
@@ -51,13 +51,43 @@ function insertComment(newComment, article_id) {
     queryValues.push(article_id);
     promiseArray.push(checkArticleExist(article_id));
   }
+  if (newComment.username) {
+    promiseArray.push(checkUserExist(newComment.username));
+  }
   promiseArray.push(db.query(queryString, queryValues));
   return Promise.all(promiseArray).then((results) => {
     const articleResults = results[0];
-    const queryResults = results[1];
+    const queryResults = results[2];
 
-    if (queryResults.rows.length === 0 && articleResults === false) {
+    if (queryResults.rows.length === 0 && articleResults !== true) {
       return Promise.reject({ status: 404, msg: "article does not exist" });
+    }
+    return queryResults.rows[0];
+  });
+}
+
+function updateArticleByID(article_id, inc_votes) {
+  const queryString = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *`;
+  const promiseArray = [];
+  const queryArray = [];
+  if (inc_votes) {
+    queryArray.push(inc_votes);
+  }
+  if (article_id) {
+    queryArray.push(article_id);
+    promiseArray.push(checkArticleExist(article_id));
+  }
+  promiseArray.push(db.query(queryString, queryArray));
+  return Promise.all(promiseArray).then((results) => {
+    const articleResults = results[0];
+    const queryResults = results[1];
+    console.log(results, "results in models");
+    console.log(queryResults.rows, "queryResults.rows in models");
+    if (queryResults.rows === 0 && articleResults !== true) {
     }
     return queryResults.rows[0];
   });
@@ -68,4 +98,5 @@ module.exports = {
   selectArticleById,
   selectComments,
   insertComment,
+  updateArticleByID,
 };

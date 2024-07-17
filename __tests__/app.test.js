@@ -41,7 +41,7 @@ describe("/api/topics", () => {
   });
 });
 
-describe("/api/articles/:article_id", () => {
+describe.only("/api/articles/:article_id", () => {
   test("GET:200 sends a single article to the client", () => {
     return request(app)
       .get("/api/articles/1")
@@ -73,6 +73,54 @@ describe("/api/articles/:article_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("PATCH: 200 update an article by article id and sends the updated article", () => {
+    const updateBody = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updateBody)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.votes).toBe(105);
+      });
+  });
+  test("PATCH: 400 sends an appropriate status and error message when given a invalid id", () => {
+    const updateBody = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/articles/not-a-number")
+      .send(updateBody)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("PATHCH:400 responds with an appropriate status and error message when provided with a bad request body (non number)", () => {
+    const updateBody = {
+      inc_votes: "not-a-number",
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updateBody)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("PATCH:404 respons with an appropriate status and error message when given a valid id but doesn not exsit", () => {
+    const updateBody = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/articles/999")
+      .send(updateBody)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article does not exist");
       });
   });
 });
@@ -175,7 +223,19 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  test("POST:404 respons with an appropriate status and error message when given a invalid id", () => {
+  test("POST:400 respons with an appropriate status and error message when given a invalid id", () => {
+    const newComment = {
+      username: "rogersop",
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/not-a-number/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("POST:404 respons with an appropriate status and error message when given a valid id but doesn not exsit", () => {
     const newComment = {
       username: "rogersop",
       body: "It is so interesting !",
@@ -186,6 +246,19 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article does not exist");
+      });
+  });
+  test("POST:404 respons with an appropriate status and error message when given non-exsisting username", () => {
+    const newComment = {
+      username: "eunwoo",
+      body: "It is so interesting !",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("user does not exist");
       });
   });
 });

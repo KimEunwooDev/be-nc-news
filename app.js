@@ -9,6 +9,7 @@ const {
   getArticleById,
   getCommentsByArticleId,
   postComment,
+  patchArticleByID,
 } = require("./controllers/articles-controllers");
 
 app.use(express.json());
@@ -24,6 +25,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postComment);
+
+app.patch("/api/articles/:article_id", patchArticleByID);
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02" || err.code === "23502") {
