@@ -85,6 +85,8 @@ function updateArticleByID(article_id, inc_votes) {
   return Promise.all(promiseArray).then((results) => {
     const articleResults = results[0];
     const queryResults = results[1];
+    console.log(results, "results in models");
+    console.log(queryResults.rows, "queryResults.rows in models");
     if (queryResults.rows === 0 && articleResults !== true) {
     }
     return queryResults.rows[0];
