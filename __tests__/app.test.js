@@ -128,7 +128,15 @@ describe("/api/articles/:article_id/comments", () => {
       .get("/api/articles/999/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("article does not exist");
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("GET:404 sends an appropriate status and error message when given a valid article id but non-existent comment", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("GET:400 sends an appropriate status and error message when given a invalid id", () => {
@@ -139,6 +147,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+
   test("POST:201 add a new comment with corresponded article_id to the db and sends the posted comment back to the client", () => {
     const newComment = {
       username: "rogersop",
