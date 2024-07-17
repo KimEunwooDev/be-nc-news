@@ -262,3 +262,24 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("/api/comments/:comment_id", () => {
+  test("DELETE:204 delete the given comment by comment id from the db", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("DELETE:400 respons with an appropriate status and error message when given a invalid id", () => {
+    return request(app)
+      .delete("/api/comments/not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("DELETE:400 respons with an appropriate status anderror message when given non-exsisting comment id", () => {
+    return request(app)
+      .delete("/api/comments/999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("comment does not exist");
+      });
+  });
+});
