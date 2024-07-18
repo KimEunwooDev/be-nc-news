@@ -41,7 +41,7 @@ describe("/api/topics", () => {
   });
 });
 
-describe.only("/api/articles/:article_id", () => {
+describe("/api/articles/:article_id", () => {
   test("GET:200 sends a single article to the client", () => {
     return request(app)
       .get("/api/articles/1")
@@ -125,7 +125,7 @@ describe.only("/api/articles/:article_id", () => {
   });
 });
 
-describe("/api/articles", () => {
+describe.only("/api/articles", () => {
   test("GET:200 sends an array of all articles", () => {
     return request(app)
       .get("/api/articles")
@@ -149,6 +149,32 @@ describe("/api/articles", () => {
           });
           expect(article.hasOwnProperty("body")).toBe(false);
         });
+      });
+  });
+  test("GET:200 allow a client to sort by any valid column with a '?sort_by=' query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSortedBy("topic", { descending: true });
+      });
+  });
+  test("GET:200 allow a client to client to change the sort order with an `?order=` query", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSortedBy("created_at");
+      });
+  });
+  test("GET:400 responds with an appropriate status and error message when provided with a invalid query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid-query")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Query");
       });
   });
 });
@@ -280,6 +306,25 @@ describe("/api/comments/:comment_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("comment does not exist");
+      });
+  });
+});
+
+describe("/api/users", () => {
+  test("GET:200 sends an array of all users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBe(4);
+        console.log(body.users);
+        body.users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
       });
   });
 });
