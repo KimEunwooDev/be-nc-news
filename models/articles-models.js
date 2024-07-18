@@ -38,6 +38,9 @@ function selectArticles(sort_by = "created_at", order = "desc", topic) {
   const queryValues = [];
 
   if (topic) {
+    if (!whitelistTopic.includes(topic)) {
+      return Promise.reject({ status: 400, msg: "Invalid Query" });
+    }
     queryString += `WHERE topic = $1 `;
     queryValues.push(topic);
   }
