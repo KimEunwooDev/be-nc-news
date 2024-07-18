@@ -88,7 +88,7 @@
     }
   },
   "DELETE /api/comments/:comment_id": {
-    "description": "delete the comment by givne comment id from the database"
+    "description": "delete the comment by given comment id from the database"
   },
   "GET /api/users": {
     "description": "serves an array of all users",
