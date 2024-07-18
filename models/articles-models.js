@@ -1,10 +1,19 @@
 const db = require("../db/connection");
 const { checkArticleExist, checkUserExist } = require("../db/seeds/utils");
 
-function selectArticles() {
-  //   return db.query("SELECT * FROM articles ORDER BY created_at;");
-  return db.query(
-    `SELECT
+function selectArticles(sort_by = "created_at", order = "desc") {
+  const whitelist = [
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+
+  let queryString = `SELECT
     articles.article_id,
     articles.title,
     articles.topic,
@@ -16,9 +25,15 @@ function selectArticles() {
     FROM comments
     RIGHT JOIN articles
     ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY created_at DESC;`
-  );
+    GROUP BY articles.article_id `;
+
+  if (!whitelist.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid Query" });
+  }
+
+  queryString += `ORDER BY ${sort_by} ${order} ;`;
+
+  return db.query(queryString);
 }
 
 function selectArticleById(article_id) {
