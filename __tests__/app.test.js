@@ -198,6 +198,14 @@ describe("/api/articles", () => {
         });
       });
   });
+  test("GET:400 responds with an appropriate status and error message when provided with a invalid query", () => {
+    return request(app)
+      .get("/api/articles?topic=invalid-query")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Query");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
@@ -338,7 +346,6 @@ describe("/api/users", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.users.length).toBe(4);
-        console.log(body.users);
         body.users.forEach((user) => {
           expect(user).toMatchObject({
             username: expect.any(String),
